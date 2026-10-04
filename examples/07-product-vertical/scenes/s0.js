@@ -1,0 +1,1 @@
+tl.fromTo('#s0 h1',{y:30,opacity:0},{y:0,opacity:1,duration:.6},start+.1);

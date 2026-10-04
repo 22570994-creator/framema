@@ -1,0 +1,31 @@
+{
+  "mode": "free",
+  "title": "本技能 / 产品功能展示",
+  "width": 720,
+  "height": 1280,
+  "fps": 30,
+  "totalFrames": 180,
+  "font": "assets/NotoSansSC.ttf",
+  "gsap": "assets/gsap.min.js",
+  "scenes": [
+    {
+      "id": "s0",
+      "start": 0,
+      "frames": 180,
+      "html": "scenes/s0.html",
+      "css": "scenes/s0.css",
+      "js": "scenes/s0.js"
+    }
+  ],
+  "media": [
+    {
+      "id": "product",
+      "type": "image",
+      "src": "assets/product.png",
+      "start": 0,
+      "frames": 180,
+      "style": "position:absolute;left:64px;top:480px;width:592px;height:395px;z-index:3"
+    }
+  ],
+  "assets": []
+}

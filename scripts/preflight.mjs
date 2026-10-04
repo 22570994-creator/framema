@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {SKILL,run,environment,hash} from './project.mjs';
+const output=path.resolve(process.argv[2]||path.join(SKILL,'environment-lock.json'));
+const env=environment(),chrome=env.HYPERFRAMES_BROWSER_PATH;
+const config=JSON.parse(fs.readFileSync(path.join(SKILL,'runtime.local.json'),'utf8'));
+const rendererNode=process.env.MOTION_NODE_PATH||config.node||process.execPath;
+const report={node:process.version,platform:process.platform,arch:process.arch,hyperframes:JSON.parse(fs.readFileSync(path.join(SKILL,'node_modules/hyperframes/package.json'),'utf8')).version,gsap:JSON.parse(fs.readFileSync(path.join(SKILL,'node_modules/gsap/package.json'),'utf8')).version,browser:{path:chrome,version:run(chrome,['--version']).trim(),sha256:hash(chrome)},ffmpeg:run('ffmpeg',['-version']).split('\n')[0],ffprobe:run('ffprobe',['-version']).split('\n')[0],packageLockSha256:hash(path.join(SKILL,'package-lock.json')),fontSha256:hash(path.join(SKILL,'assets/NotoSansSC.ttf'))};
+report.rendererNode={path:rendererNode,version:run(rendererNode,['--version']).trim(),sha256:hash(rendererNode)};
+fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

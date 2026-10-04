@@ -1,0 +1,2 @@
+tl.fromTo('#s1',{opacity:0},{opacity:1,duration:.4},start);tl.fromTo('#s1 .moon',{y:35,scale:.8},{y:0,scale:1,duration:2.2,ease:'sine.out'},start);tl.fromTo('#s1 .sea',{x:25,y:20},{x:-30,y:-35,duration:duration,ease:'sine.inOut'},start);tl.fromTo('#s1 .verse',{opacity:0},{opacity:1,duration:.8},start+.7);
+tl.fromTo('#s1 .note',{opacity:0},{opacity:1,duration:.45},start+.4);tl.to('#s1 .note, #s1 .verse',{opacity:0,duration:.25,ease:'power2.in'},7.5);

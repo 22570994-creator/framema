@@ -1,0 +1,4 @@
+interface:
+  display_name: "视频美术指导"
+  short_description: "审查画面、中文排版与运动节奏，并推动具体改进"
+  default_prompt: "使用 $motion-art-director 审查这支视频的视觉概念、构图和运动，并提出或实施具体改进。"

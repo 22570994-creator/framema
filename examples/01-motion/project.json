@@ -1,0 +1,22 @@
+{
+  "mode": "free",
+  "title": "边界 / 原创图形动效",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "totalFrames": 180,
+  "font": "assets/NotoSansSC.ttf",
+  "gsap": "assets/gsap.min.js",
+  "scenes": [
+    {
+      "id": "s0",
+      "start": 0,
+      "frames": 180,
+      "html": "scenes/s0.html",
+      "css": "scenes/s0.css",
+      "js": "scenes/s0.js"
+    }
+  ],
+  "media": [],
+  "assets": []
+}

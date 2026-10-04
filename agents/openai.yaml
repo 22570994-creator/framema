@@ -1,0 +1,4 @@
+interface:
+  display_name: "帧码"
+  short_description: "自由动效、素材合成、音乐与字幕，检索本地案例并输出视频"
+  default_prompt: "使用 $gpt-motion-director，根据我的创作目标制作视频并交付可编辑工程。"

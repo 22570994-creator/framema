@@ -1,0 +1,18 @@
+import {fileURLToPath} from 'node:url';
+import fs from 'node:fs';import path from 'node:path';import {createHash} from 'node:crypto';import {SKILL} from './project.mjs';
+const synonyms={纸张:['paper','origami','fold','纸'],动效:['motion','kinetic','typography'],音乐:['music','beat','rhythm','lyric'],产品:['product','launch','app','website'],讲解:['explainer','explain','educational'],三维:['3d','threejs','blender'],转场:['transition','morph','zoom'],复古:['retro','vintage','film'],科技:['tech','digital','cyber'],自然:['nature','forest','ocean'],文字:['text','type','typography'],水墨:['ink','watercolor','paint'],数据:['chart','data','graph']};
+const digest=s=>createHash('sha256').update(s).digest('hex');
+export function indexCases(rows){const seen=new Map();return rows.map((r,i)=>{const original=JSON.stringify(r);const norm=(r.prompt||'').toLowerCase().replace(/\s+/g,' ').trim();const key=digest(norm);const id=r.slug||`case-${i+1}`;const duplicateOf=seen.get(key)||null;if(!duplicateOf)seen.set(key,id);const inferredTags=Object.entries(synonyms).filter(([,terms])=>terms.some(t=>norm.includes(t))).map(([t])=>t);return {id,number:i+1,author:r.author||null,source:r.post_url||r.skillry_url||null,partial:r.prompt_partial===true,category:r.category||'',originalTags:r.tech_tags||[],inferredTags,tagMethod:'keyword-v1',duplicateOf,prompt:r.prompt||'',raw:r,rawSha256:digest(original)};});}
+export function searchCases(rows,query,{limit=5,includePartial=false,duplicates=false}={}){
+ const terms=query.toLowerCase().split(/\s+/).filter(Boolean);const expanded=terms.flatMap(t=>[t,...(synonyms[t]||[])]);
+ return rows.filter(r=>(includePartial||!r.partial)&&(duplicates||!r.duplicateOf)).map(r=>{const text=[r.prompt,r.category,...r.originalTags,...r.inferredTags].join(' ').toLowerCase();const score=expanded.reduce((n,t)=>n+(text.includes(t)?1:0),0)+(r.id===query?100:0);return {...r,score};}).filter(r=>!query||r.score>0).sort((a,b)=>b.score-a.score||a.number-b.number).slice(0,limit);
+}
+if(process.argv[1]&&path.resolve(process.argv[1])===path.resolve(fileURLToPath(import.meta.url))){main();}
+function main(){const [cmd,...args]=process.argv.slice(2);const folder=process.env.MOTION_CASES_DIR||path.join(SKILL,'cases/local');const file=path.join(folder,'index.json');fs.mkdirSync(folder,{recursive:true});
+ if(cmd==='import'){const source=args[0]||path.join(folder,'source-videos.json');const raw=JSON.parse(fs.readFileSync(source,'utf8'));if(!Array.isArray(raw))throw Error('Expected source array');const rows=indexCases(raw);fs.writeFileSync(file,JSON.stringify(rows,null,2));console.log(JSON.stringify({records:rows.length,partial:rows.filter(r=>r.partial).length,uniquePrompts:rows.filter(r=>!r.duplicateOf).length,duplicates:rows.filter(r=>r.duplicateOf).length}));return;}
+ const rows=JSON.parse(fs.readFileSync(file,'utf8'));
+ if(cmd==='show'){const r=rows.find(r=>r.id===args[0]||r.number===Number(args[0]));if(!r)throw Error('Case not found');console.log(JSON.stringify(r,null,2));}
+ else if(cmd==='search'){const q=args.filter(x=>!x.startsWith('--')).join(' ');console.log(JSON.stringify(searchCases(rows,q,{includePartial:args.includes('--include-partial'),duplicates:args.includes('--duplicates')}).map(({raw,prompt,...r})=>({...r,excerpt:prompt.slice(0,360),promptChars:prompt.length})),null,2));}
+ else if(cmd==='stats')console.log(JSON.stringify({records:rows.length,partial:rows.filter(r=>r.partial).length,uniquePrompts:rows.filter(r=>!r.duplicateOf).length},null,2));
+ else throw Error('Usage: cases.mjs import [videos.json] | search QUERY [--include-partial] [--duplicates] | show ID_OR_NUMBER | stats');
+}

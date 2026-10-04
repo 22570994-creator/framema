@@ -1,0 +1,12 @@
+import fs from 'node:fs';import path from 'node:path';import {SKILL} from './project.mjs';
+const [target]=process.argv.slice(2);if(!target)throw Error('Usage: init-free.mjs NEW_PROJECT');const dir=path.resolve(target);
+if(fs.existsSync(dir)&&fs.readdirSync(dir).length)throw Error('Project must be new/empty');
+for(const d of ['assets','scenes'])fs.mkdirSync(path.join(dir,d),{recursive:true});
+for(const f of ['NotoSansSC.ttf','OFL.txt'])fs.copyFileSync(path.join(SKILL,'assets',f),path.join(dir,'assets',f));
+fs.copyFileSync(path.join(SKILL,'node_modules/gsap/dist/gsap.min.js'),path.join(dir,'assets/gsap.min.js'));
+fs.writeFileSync(path.join(dir,'project.json'),JSON.stringify({mode:'free',title:'新创作',width:1280,height:720,fps:30,totalFrames:150,font:'assets/NotoSansSC.ttf',gsap:'assets/gsap.min.js',scenes:[{id:'opening',start:0,frames:150,html:'scenes/opening.html',css:'scenes/opening.css',js:'scenes/opening.js'}],media:[],assets:[]},null,2));
+fs.writeFileSync(path.join(dir,'scenes/opening.html'),'<h1>从你的创作目标开始</h1>');
+fs.writeFileSync(path.join(dir,'scenes/opening.css'),'#opening{display:grid;place-items:center;background:#101826}#opening h1{font-size:64px;color:#fff}');
+fs.writeFileSync(path.join(dir,'scenes/opening.js'),"tl.fromTo('#opening h1',{y:35,opacity:0},{y:0,opacity:1,duration:.7},start+.1);");
+fs.writeFileSync(path.join(dir,'BRIEF.md'),'# 创作简报\n\n填写目标、受众、核心信息、视觉选择、素材来源与交付要求。\n\nproject.json 管理时间与素材；scenes/ 管理画面实现。初始化画面须按任务改写。\n');
+fs.writeFileSync(path.join(dir,'hyperframes.json'),JSON.stringify({name:path.basename(dir)},null,2));console.log(dir);

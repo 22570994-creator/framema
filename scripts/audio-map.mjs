@@ -1,0 +1,6 @@
+import fs from 'node:fs';import path from 'node:path';import {run} from './project.mjs';
+const [input,output,fpsArg='30']=process.argv.slice(2);if(!input||!output)throw Error('Usage: audio-map.mjs AUDIO OUTPUT.json [FPS]');const fps=Number(fpsArg);if(!Number.isInteger(fps)||fps<=0)throw Error('Invalid FPS');
+const pcm=run('ffmpeg',['-v','error','-i',path.resolve(input),'-ac','1','-ar','16000','-f','f32le','pipe:1'],{encoding:null,maxBuffer:256*1024*1024});
+const window=320,energy=[];for(let i=0;i+window*4<=pcm.length;i+=window*4){let sum=0;for(let j=0;j<window;j++)sum+=pcm.readFloatLE(i+j*4)**2;energy.push(Math.sqrt(sum/window));}
+const peak=energy.reduce((m,x)=>Math.max(m,x),0);const hits=[];for(let i=1;i<energy.length-1;i++){if(energy[i]>peak*.22&&energy[i]>energy[i-1]*1.5&&energy[i]>=energy[i+1]&&(!hits.length||i*.02-hits.at(-1)>.18))hits.push(i*.02);}
+fs.writeFileSync(output,JSON.stringify({fps,method:'20ms RMS onset candidates; not a beat tracker or lyric aligner',reviewed:false,duration:pcm.length/4/16000,anchors:hits.map(t=>({frame:Math.round(t*fps),audio_sec:t})),energy:energy.map((v,i)=>({sec:i*.02,rms:v}))},null,2));console.log(`Wrote ${hits.length} onset candidates; review before musical timing decisions`);

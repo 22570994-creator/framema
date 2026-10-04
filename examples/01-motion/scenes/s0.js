@@ -1,0 +1,1 @@
+tl.fromTo('#s0 .orb',{scale:.4,rotation:0},{scale:1,rotation:90,duration:2,ease:'power3.out'},start);tl.fromTo('#s0 .hero',{x:-40,opacity:0},{x:0,opacity:1,duration:.7},start+.15);

@@ -1,0 +1,38 @@
+{
+  "mode": "free",
+  "title": "潮汐 · 海洋的呼吸",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "totalFrames": 360,
+  "font": "assets/NotoSansSC.ttf",
+  "gsap": "assets/gsap.min.js",
+  "scenes": [
+    {
+      "id": "s0",
+      "start": 0,
+      "frames": 126,
+      "html": "scenes/s0.html",
+      "css": "scenes/s0.css",
+      "js": "scenes/s0.js"
+    },
+    {
+      "id": "s1",
+      "start": 114,
+      "frames": 132,
+      "html": "scenes/s1.html",
+      "css": "scenes/s1.css",
+      "js": "scenes/s1.js"
+    },
+    {
+      "id": "s2",
+      "start": 234,
+      "frames": 126,
+      "html": "scenes/s2.html",
+      "css": "scenes/s2.css",
+      "js": "scenes/s2.js"
+    }
+  ],
+  "media": [],
+  "assets": []
+}

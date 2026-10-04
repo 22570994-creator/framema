@@ -1,0 +1,48 @@
+{
+  "mode": "free",
+  "title": "混合素材 / 裁切与信息层",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "totalFrames": 180,
+  "font": "assets/NotoSansSC.ttf",
+  "gsap": "assets/gsap.min.js",
+  "scenes": [
+    {
+      "id": "s0",
+      "start": 0,
+      "frames": 100,
+      "html": "scenes/s0.html",
+      "css": "scenes/s0.css",
+      "js": "scenes/s0.js"
+    },
+    {
+      "id": "s1",
+      "start": 90,
+      "frames": 90,
+      "html": "scenes/s1.html",
+      "css": "scenes/s1.css",
+      "js": "scenes/s1.js"
+    }
+  ],
+  "media": [
+    {
+      "id": "footage",
+      "type": "video",
+      "src": "assets/footage.mp4",
+      "start": 0,
+      "frames": 180,
+      "in": 1,
+      "style": "position:absolute;left:560px;top:140px;width:640px;height:360px;object-fit:cover;z-index:3"
+    },
+    {
+      "id": "bed",
+      "type": "audio",
+      "src": "assets/rhythm.wav",
+      "start": 0,
+      "frames": 180,
+      "volume": 0.35
+    }
+  ],
+  "assets": []
+}
