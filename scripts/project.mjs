@@ -7,7 +7,14 @@ import {spawnSync} from 'node:child_process';
 import {parseStoryboard} from './lib/storyboard.mjs';
 
 export const SKILL = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export const hash = p => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+// Bound memory even when hashing multi-gigabyte renders.
+export function hash(p) {
+  const digest=createHash('sha256'), buffer=Buffer.allocUnsafe(1024*1024);
+  const fd=fs.openSync(p,'r');
+  try {let count;while((count=fs.readSync(fd,buffer,0,buffer.length,null))>0)digest.update(buffer.subarray(0,count));}
+  finally {fs.closeSync(fd);}
+  return digest.digest('hex');
+}
 export function run(bin, args, options={}) {
   const r=spawnSync(bin,args,{encoding:'utf8',windowsHide:true,maxBuffer:32*1024*1024,...options});
   if(r.error || r.status!==0) throw new Error(`${bin} failed (${r.status}): ${r.error?.message || ''}\n${r.stdout||''}\n${r.stderr||''}`);

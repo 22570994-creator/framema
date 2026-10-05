@@ -8,7 +8,8 @@ if(qc.status!=='passed'||qc.sha256!==hash(path.join(dir,'renders/final.mp4')))th
 if(review.buildSha256!==hash(path.join(dir,'reports/build.json'))||review.videoSha256!==qc.sha256)throw Error('Art review belongs to another build/video');
 if(build.indexSha256!==hash(path.join(dir,'index.html')))throw Error('HTML changed after build');
 if(build.sourceHashes)for(const [f,h]of Object.entries(build.sourceHashes))if(hash(local(dir,f))!==h)throw Error('Source changed after art review');
-if(review.decision!=='ready-for-user-review'||!review.reviewer||!review.evidence?.length||!review.criteria?.length)throw Error('Art review incomplete or requests revision');
-for(const e of review.evidence){local(dir,e.file);if(!Number.isFinite(e.time)||!e.observation)throw Error('Frame evidence needs time and observation');}
-if(review.criteria.some(c=>!c.name||!c.observation||c.status==='revise'))throw Error('Unresolved art critique');
+const text=value=>typeof value==='string'&&value.trim().length>0;
+if(review.decision!=='ready-for-user-review'||!text(review.reviewer)||!Array.isArray(review.evidence)||!review.evidence.length||!Array.isArray(review.criteria)||!review.criteria.length)throw Error('Art review incomplete or requests revision');
+for(const e of review.evidence){if(!e||!text(e.file))throw Error('Missing frame evidence');const f=local(dir,e.file);if(!fs.statSync(f).isFile()||!Number.isFinite(e.time)||e.time<0||!text(e.observation))throw Error('Frame evidence needs a file, non-negative time and observation');}
+if(review.criteria.some(c=>!c||!text(c.name)||!text(c.observation)||!['pass','reviewed'].includes(c.status)))throw Error('Unresolved art critique');
 console.log('Ready for user review: technical and author art-review evidence match. This does not constitute user approval or an objective aesthetic score.');

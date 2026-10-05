@@ -4,3 +4,7 @@ test('release evidence matching is separate from user approval',()=>fixture((d,r
 test('release rejects unresolved art criticism',()=>fixture((d,r,p,check)=>{r.criteria[0].status='revise';p('reports/art-review.json',r);assert.notEqual(check().status,0);}));
 test('release rejects source edited after review',()=>fixture((d,r,p,check)=>{fs.writeFileSync(path.join(d,'source.html'),'changed');assert.notEqual(check().status,0);}));
 test('release rejects missing visual evidence',()=>fixture((d,r,p,check)=>{r.evidence[0].file='reports/missing.png';p('reports/art-review.json',r);assert.notEqual(check().status,0);}));
+for(const status of [undefined,'pending','failed','unknown'])test(`release rejects criterion status ${status}`,()=>fixture((d,r,p,check)=>{r.criteria[0].status=status;p('reports/art-review.json',r);assert.notEqual(check().status,0);}));
+test('release rejects negative evidence time',()=>fixture((d,r,p,check)=>{r.evidence[0].time=-1;p('reports/art-review.json',r);assert.notEqual(check().status,0);}));
+test('release rejects directory as frame evidence',()=>fixture((d,r,p,check)=>{r.evidence[0].file='reports';p('reports/art-review.json',r);assert.notEqual(check().status,0);}));
+test('release rejects whitespace reviewer',()=>fixture((d,r,p,check)=>{r.reviewer='  ';p('reports/art-review.json',r);assert.notEqual(check().status,0);}));

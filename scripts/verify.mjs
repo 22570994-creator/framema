@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {readProject,run,hash} from './project.mjs';
+import {audioSignal as readAudioSignal} from './lib/audio-signal.mjs';
 const p=readProject(path.resolve(process.argv[2]||'.')), video=path.join(p.dir,'renders/final.mp4');
 const info=JSON.parse(run('ffprobe',['-v','error','-count_frames','-show_streams','-show_format','-of','json',video]));
 const v=info.streams.find(x=>x.codec_type==='video'),a=info.streams.find(x=>x.codec_type==='audio');
@@ -10,16 +11,14 @@ else {
  if(Number(v.nb_read_frames)!==p.totalFrames) errors.push(`Wrong decoded frame count: ${v.nb_read_frames}`);
  if(v.width!==p.width||v.height!==p.height) errors.push('Wrong canvas');
  const [n,d]=v.avg_frame_rate.split('/').map(Number); if(n/d!==p.fps)errors.push('Wrong FPS');
- if(Math.abs(Number(v.duration)-p.totalFrames/p.fps)>1/p.fps+.00001)errors.push('Video duration mismatch');
+ if(!Number.isFinite(Number(v.duration))||Math.abs(Number(v.duration)-p.totalFrames/p.fps)>1/p.fps+.00001)errors.push('Video duration missing or mismatch');
 }
 if((p.assets.audio||p.expectedAudio)&&!a)errors.push('Audio stream absent');
-if(a&&Math.abs(Number(a.duration)-p.totalFrames/p.fps)>Math.max(1/p.fps,2048/Number(a.sample_rate)))errors.push('Audio duration mismatch beyond codec padding allowance');
+if(a&&(!Number.isFinite(Number(a.duration))||!(Number(a.sample_rate)>0)||Math.abs(Number(a.duration)-p.totalFrames/p.fps)>Math.max(1/p.fps,2048/Number(a.sample_rate))))errors.push('Audio timing missing or mismatch beyond codec padding allowance');
 let pulse=null,audioSignal=null;
 if(a) {
- const raw=run('ffmpeg',['-v','error','-i',video,'-vn','-ac','1','-ar','48000','-f','f32le','pipe:1'],{encoding:null});
- let energy=0,peak=0,first=-1;
- for(let i=0;i<raw.length/4;i++){const x=raw.readFloatLE(i*4);energy+=x*x;peak=Math.max(peak,Math.abs(x));if(first<0&&Math.abs(x)>.035)first=i;}
- audioSignal={rms:Math.sqrt(energy/(raw.length/4)),peak};
+ const {first,...signal}=await readAudioSignal(video);
+ audioSignal=signal;
  if(audioSignal.rms<1e-6)errors.push('Audio stream is effectively silent');
  if(p.g.sync_required==='true') {
   const map=JSON.parse(fs.readFileSync(path.join(p.dir,p.g.audiomap),'utf8'));
